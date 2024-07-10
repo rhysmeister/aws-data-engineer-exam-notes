@@ -41,7 +41,7 @@ These notes are intended for quick study/cramming for the [AWS Data Engineer Ass
 * Amazon Redshift supports streaming ingestion from Amazon Kinesis Data Streams
   * Can be pushed into a Materialized View.
   * Setup (assumes Kinesis DS already exists)...
-    * Create a schema in RedShift that can consume a Kinesis DS...
+    * Create a schema in RedShift that can consume a Kinesis DS...t
 
 ```sql 
 CREATE EXTERNAL SCHEMA kds
@@ -66,12 +66,29 @@ WHERE CAN_JSON_PARSE(kinesis_data);
 REFRESH MATERIALIZED VIEW my_view;
 ```
 
+* KMS Customer Managed Keys
+  * Automatic roation once per year only.
+  * If a different schedule is required we need to handle this in Lambda ourselves.
+
 * Amazon Redshift Data API
   * Simplifies access to Amazon Redshift data.
   * No need to manage db connections, drivers etc.
 
 ### DynamoDB
 
+* Maximum size of a table item = 400KB.
+* Data Types:
+  * Scalar Types
+    * String
+    * Int
+    * Boolean
+  * Document Types
+    * List
+    * Map
+  * Set Types
+    * String Set
+    * Number Set
+    * Binary Set
 * Amazon CloudWatch Contributor Insights.
   * Summarized view of your DynamoDB table’s traffic trends.
   * Identify the most frequently accessed partition keys.
@@ -200,6 +217,10 @@ REFRESH MATERIALIZED VIEW my_view;
 * Functions execute in their own VPC but can be configured to run in user VPCs.
 * Lambda functions run in their own env/VPC and must be connected to user VPCs if interaction with user resources is needed.
   * An appropriate Security Group also needs to be attached to the Lambda function.
+* Performance tuning of Lambda / Kinesis
+  * Parallelization Factor determines how many concurrent invocations per shard are made. Adjusting this factor can optimize the processing of records and improve throughput.
+  * Enhanced Fan-Out feature of Amazon Kinesis provides a dedicated throughput of 2 MB/sec for read operations per shard for each registered consumer, as opposed to the shared throughput of 2 MB/sec across all consumers (e.g. EC2 Instances and Lambda Functions) in standard mode.
+  * Thus adding more Kinesis shards will also improve performance.
 
 
 ### AWS Batch
@@ -260,4 +281,4 @@ REFRESH MATERIALIZED VIEW my_view;
 * S3 Standard-Infrequent Access
   * Designed for data accessed less frequently but requires rapid access when needed.
   * Lower storage price point than S3 Standard.
-
+* It is not possible to unload data directly from Amazon Redshift to S3 Glacier Instant Retrieval (unload to standard).
